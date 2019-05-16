@@ -7,7 +7,8 @@
     "test": "mocha 'test/**/*.spec.js' --require babel-core/register",
     "build": "babel --presets es2015 -d lib/ src",
     "dev": "nodemon --watch src --exec 'npm run build'",
-    "lint": "./node_modules/.bin/eslint src"
+    "lint": "./node_modules/.bin/eslint src",
+    "scrape_routes": "jake -f lib/tasks/index.js scrape_routes"
   },
   "repository": {
     "type": "git",
@@ -20,11 +21,15 @@
   },
   "homepage": "https://github.com/HaugL/united-upgrade-probability#readme",
   "dependencies": {
+    "@google/maps": "^0.5.5",
     "bookshelf": "^0.14.2",
     "dotenv": "^8.0.0",
     "jake": "^8.1.1",
     "knex": "^0.13.0",
-    "pg": "^7.10.0"
+    "modern-random-ua": "^1.0.3",
+    "pg": "^7.10.0",
+    "puppeteer": "^1.15.0",
+    "underscore": "^1.9.1"
   },
   "devDependencies": {
     "@babel/register": "^7.4.4",
