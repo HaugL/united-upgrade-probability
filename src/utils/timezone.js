@@ -1,7 +1,7 @@
 import { TimezoneMap } from '../models/TimezoneMap';
 
 const googleMapsClient = require('@google/maps').createClient({
-  key: 'AIzaSyCpeKx-k_S4Ouefz9SFazhd1MGGfYFxOWc',
+  key: process.env.GOOGLE_API_KEY,
   Promise: Promise
 });
 
