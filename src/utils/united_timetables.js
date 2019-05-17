@@ -1,4 +1,7 @@
 import _ from 'underscore'
+import { Route } from '../models/Route'
+import moment from 'moment'
+import { getTimezoneFromCity } from '../utils/timezone'
 
 export async function initial_search_timetable(page, destination){
   await page.goto('https://www.united.com/web/en-US/apps/travel/timetable/', {waitUntil: 'networkidle0'})
@@ -47,20 +50,20 @@ export async function get_flights(page, destination){
     return rows.map((row) => {
       const departureAirport = row.children[0].children[2].innerHTML;
       const destinationAirport = row.children[1].children[2].innerHTML;
-      const flightTime = row.children[2].children[0].children[0].innerHTML
+      const flightTime = row.children[2].children[0].children[0]
       return {
         departure: {
           time: row.children[0].children[1].children[0].innerHTML,
-          airport: departureAirport,
+          city: departureAirport,
           airportCode: departureAirport.slice(departureAirport.length-4, departureAirport.length-1)
         },
         destination: {
           time: row.children[1].children[1].children[0].innerHTML,
-          airport: destinationAirport,
+          city: destinationAirport,
           airportCode: destinationAirport.slice(destinationAirport.length-4, destinationAirport.length-1)
         },
         flightNumber: row.children[4].children[0].children[0].innerHTML,
-        flightHours: (flightTime.indexOf('hr') > -1) ? parseInt(flightTime.split(' hr')[0]) : 0
+        flightHours: !flightTime ? 100 : (flightTime.innerHTML.indexOf('hr') > -1) ? parseInt(flightTime.innerHTML.split(' hr')[0]) : 0
       }
     });
   });
@@ -71,8 +74,29 @@ export async function get_flights(page, destination){
     return flight.flightNumber
   });
 
-  console.log(destinationFlightRows);
-  console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+  for(let index = 0; index < destinationFlightRows.length; index++){
+    const dest = destinationFlightRows[index]
+    const timezone = await getTimezoneFromCity(dest.departure.city, dest.departure.airportCode)
+    const timeString = moment(dest.departure.time, 'h:mm a').format('H:mm');
+    const existingRoute = await Route.where({
+      flight_number: dest.flightNumber,
+      departure_time_string: timeString ,
+      from: dest.departure.airportCode
+    }).fetch()
+
+    if(existingRoute === null){
+      Route.forge({
+        flight_number: dest.flightNumber,
+        from: dest.departure.airportCode,
+        to: dest.destination.airportCode,
+        departure_time_string: timeString,
+        departure_timezone: timezone
+      }).save()
+    } else {
+      console.log("Route already exists")
+    }
+  }
+
 }
 
 

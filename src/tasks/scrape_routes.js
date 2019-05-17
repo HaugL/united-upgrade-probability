@@ -28,40 +28,39 @@ const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 //   })();
 // };
 
-export const scrapeRoutes = () => {
-  getTimezoneFromCity('New York/Newark, NJ, US', 'EWR')
-  .then((timezone) => {
-    console.log(timezone)
-  })
-}
-
 // export const scrapeRoutes = () => {
 //   (async () => {
-//     const browser = await puppeteer.launch({headless: false});
-//     const page = await browser.newPage();
-//     await page.setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36");
-//     const destinations = await Destination.fetchAll();
-//     for(let i = 0; i < destinations.models.length; i++){
-//       const destination = destinations.models[i]
-//       const destinationAirport =  destination.get('airport_code');
-//       console.log("Airport: ",  destinationAirport);
-//       if(i === 0){
-//         console.log("Initial Search");
-//         await initial_search_timetable(page, destinationAirport);
-//       } else {
-//         console.log("Secondary Search");
-//         await secondary_search_timetable(page, destinationAirport);
-//       }
-//       await timeout(300);
-//       console.log("Getting Flights");
-//       await get_flights(page, destinationAirport);
-//       console.log("Pause....");
-//       await timeout(30000);
-//       i += 1;
-//     }
+//     const x = await getTimezoneFromCity('New York/Newark, NJ, US', 'EWR')
+//     console.log(x)
 //   })();
-// };
+// }
 
+export const scrapeRoutes = () => {
+  (async () => {
+    const browser = await puppeteer.launch({headless: false});
+    const page = await browser.newPage();
+    await page.setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36");
+    const destinations = await Destination.fetchAll();
+    for(let i = 0; i < destinations.models.length; i++){
+      const destination = destinations.models[i]
+      const destinationAirport =  destination.get('airport_code');
+      console.log("Airport: ",  destinationAirport);
+      if(i === 0){
+        console.log("Initial Search");
+        await initial_search_timetable(page, destinationAirport);
+      } else {
+        console.log("Secondary Search");
+        await secondary_search_timetable(page, destinationAirport);
+      }
+      await timeout(300);
+      console.log("Getting Flights");
+      await get_flights(page, destinationAirport);
+      console.log("Pause....");
+      await timeout(30000);
+      i += 1;
+    }
+  })();
+};
 
 // const testFlights = [ { departure:
 //      { time: '10:55 a.m.',
